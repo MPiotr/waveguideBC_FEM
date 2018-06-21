@@ -25,8 +25,7 @@ func real fNorm(int modeNumber, real size1)
 func real Kappa(int modeNumber, real size1, real size2)
 {
 	real sign = 0; if(modeNumber >= 0) sign = 1.; else sign = -1.;
-	return 1;
-	//if(modeNumber % 2 == 0) return Kappate(modeNumber/2, size1);
-	//else return Kappatm((modeNumber+1)/2, size1);
+	if(modeNumber % 2 == 0) return Kappate(modeNumber/2, size1, 0);
+	else return Kappatm((modeNumber+1)/2, size1, 0);
 }
 
