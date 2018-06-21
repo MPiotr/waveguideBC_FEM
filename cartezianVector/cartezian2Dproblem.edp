@@ -1,0 +1,154 @@
+load "Element_Mixte"
+load "Element_P3"
+func complex epsilon(real xx, real yy)
+{
+      return 1. + 0*1i;
+	//  if(xx > 0.25 && xx < 0.75 && yy > 0.25 && yy < 0.75) return 12;
+	//  else return  1.;
+}
+include "cartezian2D_TMmodes.edp"
+real height = 1;
+func mesh generateMesh()
+{
+    return square(20,20, [x, y*height]);
+}
+      mesh Th = generateMesh();
+	  plot(Th);
+
+     fespace Vh(Th,[RT1Ortho, P2]); // finite element space
+
+     matrix<complex> OP;
+
+     bool ifPlot = false;
+
+     macro odx(F) (dx(F))                 //legacy macro, but may be useful in future
+     macro odxc(F) (dx(F))                //
+	 int m = 0;                           //not used in this implementation, keep it for consistency
+	 real sigma = 9.*pi*pi+3.;
+
+     varf MKSWL([Hz,Hr, Hphi],[vHz,vHr, vHphi]) = 
+             int2d(Th)(
+(
+     (dy(Hphi) - 1i*m*Hr )*conj(dy(vHphi)- 1i*m*vHr ) 	    //rot_z
+ +   (odx(Hr) - dy(Hz))*conj(odx(vHr) - dy(vHz))		 	//rot_phi
+ +   (1i*m*Hz  - odx(Hphi))*conj(1i*m*vHz  - odx(vHphi))    //rot_r
+
+)
+-sigma*epsilon(x,y)*(conj(vHr)*Hr+conj(vHphi)*Hphi + conj(vHz)*Hz)//*exp(1i*h*x)
+         )
+
+	+ on(1, 3, Hz = 0, Hr = 0, Hphi = 0)
+;
+    OP = MKSWL(Vh, Vh, solver=UMFPACK); 
+	
+	real k = sqrt(sigma);
+	cout<<"h1 = "<<H(k, Kappa(1,1,1))<<",  kappa1 = "<<Kappa(1,1,1)<<endl; 
+	cout<<"h2 = "<<H(k, Kappa(2,1,1))<<",  kappa2 = "<<Kappa(2,1,1)<<endl; 
+	cout<<"h3 = "<<H(k, Kappa(3,1,1))<<",  kappa3 = "<<Kappa(3,1,1)<<endl; 
+	cout<<"h3 = "<<H(k, Kappa(4,1,1))<<",  kappa3 = "<<Kappa(4,1,1)<<endl; 
+	
+	
+	func complex[int] vectorBCh(int modeNum, int boundaryLabel)
+	{
+		varf BoundCondRot([Ex,Ey,Ez],[vEx,vEy,vEz]) =   int1d(Th,boundaryLabel)( (
+		                                                                  anH(x, y, modeNum, 1, height, 0, k)*conj(0*vEy - N.y*vEz)
+                                                                        + anH(x, y, modeNum, 2, height, 0, k)*conj(N.x*vEz - 0*vEx)
+																	    + anH(x, y, modeNum, 3, height, 0, k)*conj(N.y*vEx - N.x*vEy)
+																		)*(1i*k));  // [n v*] rot E = [n v*] (i k H) //TM, 0
+																	  
+		complex[int] BCr = BoundCondRot(0,Vh);
+		return BCr;				
+		
+	}	
+	func complex[int] vectorBCe(int modeNum, int boundaryLabel) 
+	{
+		varf BoundCondField([Ex,Ey,Ez],[vEx,vEy,vEz]) =  int1d(Th,boundaryLabel)((
+																	 conj(-(vEz)*anH(x, y, modeNum, 2, height, 0, k)
+																	 - anE(x, y, modeNum, 3, height, 0, k)*(dx(vEz)/(1i*k) )
+																	 + (vEy) *anH(x, y, modeNum, 3, height, 0, k) 
+																	 - anE(x, y, modeNum, 2, height, 0, k)*((dx(vEy) - dy(vEx))/(1i*k))
+																	 )*(N.x)
+																	 )
+																	 /fNorm(modeNum, height));
+		complex[int] BCrf = BoundCondField(0,Vh);
+		return BCrf;
+		
+	}
+	func matrix<complex> matrixBC(int modeNum, int boundaryLabel)
+	{		
+		complex[int] BCr  = vectorBCh( modeNum, boundaryLabel);
+		complex[int] BCrf = vectorBCe( -modeNum, boundaryLabel);
+		matrix<complex> Br = BCr*BCrf'; // cartesian product
+		return Br;
+		
+	}	
+	
+	Vh<complex> [Ex,Ey,Ephi];
+	
+	func matrix<complex> generateBCMatrix(int numberOfModes, int boundaryLabel, int sign)
+	{
+		matrix<complex> Br1; 
+		for(int i = 1; i <= numberOfModes; i++) 
+		{
+			matrix<complex> Br2 = matrixBC(sign*i, boundaryLabel);
+			Br1 = Br1 + Br2;
+		}
+		return Br1;		
+	}
+	
+	int rightBorderLabel = 2;
+	int  leftBorderLabel = 4;
+	int numberOfModesToAccount = 3;
+	matrix<complex> Br = generateBCMatrix(numberOfModesToAccount, rightBorderLabel,1);
+	matrix<complex> Bl = generateBCMatrix(numberOfModesToAccount, leftBorderLabel, 1);
+	
+	matrix<complex> A; //A =  OP + Bl + Br;                     //Here is an odd thing happens. Initially, I wrote  "A = OP + generateBCMatrix(...) + generateBCMatrix(...);"
+	A = OP;														//but I've found out that the result depends on the order of calling  the constructors (and,generally, is wrong),
+	A = A + Br;                                                 //so now I'm not sure now even if  "matrix A= OP + Bl +Br"  will work correctly and add them step by step
+	A = A + Bl;                                                 
+	complex[int] u(Br.n);
+	set(A, solver = UMFPACK);
+	complex[int] RHS =  vectorBCh(2 , leftBorderLabel);	
+	
+	u = A^-1*(RHS);
+
+    Ex[] = u;
+	
+	
+ //   plot(Ex, fill = true, cmm = "Ex");
+    plot(Ey, fill = true, cmm = "Ey");
+//	plot(Ephi, fill = true, cmm = "Ephi");
+
+	cout << ".........................................................."<<endl;
+	
+	
+/*	fespace Uh (Th, P1);
+    Uh adaptFun = abs(Ex);
+	Th = adaptmesh(Th, adaptFun, nbvx = 1600);
+	plot(Th);
+	
+	OP = MKSWL(Vh, Vh, solver=UMFPACK); 
+	matrix<complex> aBr = generateBCMatrix(3,  2);
+	matrix<complex> aBl = generateBCMatrix(3,  4);
+	aBl = (-1.)*aBl;
+//	Br = (-1.)*Br;
+	
+	matrix<complex> aA; //A =  OP + Bl + Br;                     
+	aA = OP;														
+	aA = aA + aBr;                               
+	aA = aA + aBl;
+	complex[int] au(aBr.n);
+	set(aA, solver = UMFPACK);
+	complex[int] aRHS =  vectorBCh(3,  4);
+	
+    au = aA^-1*(aRHS);
+
+	Vh<complex> [aEx,aEy,aEphi];
+    aEx[] = au;
+ 
+    plot(aEx, fill = true, cmm = "Ex");
+	plot(aEy, fill = true, cmm = "Ey");
+//	plot(Ephi, fill = true, cmm = "Ephi");
+*/
+	
+	
