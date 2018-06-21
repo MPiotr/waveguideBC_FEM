@@ -79,8 +79,7 @@ func mesh generateMesh()
 		complex[int] BCr  = vectorBCh( modeNum, boundaryLabel);
 		complex[int] BCrf = vectorBCe( -modeNum, boundaryLabel);
 		matrix<complex> Br = BCr*BCrf'; // cartesian product
-		return Br;
-		
+		return Br;		
 	}	
 	
 	Vh<complex> [Ex,Ey,Ephi];
@@ -103,7 +102,7 @@ func mesh generateMesh()
 	matrix<complex> Bl = generateBCMatrix(numberOfModesToAccount, leftBorderLabel, 1);
 	
 	matrix<complex> A; //A =  OP + Bl + Br;                     //Here is an odd thing happens. Initially, I wrote  "A = OP + generateBCMatrix(...) + generateBCMatrix(...);"
-	A = OP;														//but I've found out that the result depends on the order of calling  the constructors (and,generally, is wrong),
+	A = OP;                                                     //but I've found out that the result depends on the order of calling  the constructors (and,generally, is wrong),
 	A = A + Br;                                                 //so now I'm not sure now even if  "matrix A= OP + Bl +Br"  will work correctly and add them step by step
 	A = A + Bl;                                                 
 	complex[int] u(Br.n);
@@ -115,7 +114,7 @@ func mesh generateMesh()
     Ex[] = u;
 	
 	
- //   plot(Ex, fill = true, cmm = "Ex");
+ // plot(Ex, fill = true, cmm = "Ex");
     plot(Ey, fill = true, cmm = "Ey");
 //	plot(Ephi, fill = true, cmm = "Ephi");
 

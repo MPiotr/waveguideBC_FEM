@@ -22,7 +22,7 @@ func complex anE(real xx, real yy, int modeNumber, int componentNumber, real siz
 {
 	real kp = Kappa(abs(modeNumber), size1, 0);
 	real h = H(k, kp);	
-	real sign = 0; if(modeNumber >= 0) sign = 1.; else sign = -1.; //если мода ноль, то знак всё равно надо менять, а таким образом не получится
+	real sign = 0; if(modeNumber >= 0) sign = 1.; else sign = -1.; 
 	if(componentNumber == 3){
 		return 0;
 	}
