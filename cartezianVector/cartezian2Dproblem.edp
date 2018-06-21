@@ -6,7 +6,7 @@ func complex epsilon(real xx, real yy)
 	//  if(xx > 0.25 && xx < 0.75 && yy > 0.25 && yy < 0.75) return 12;
 	//  else return  1.;
 }
-include "cartezian2D_TMmodes.edp"
+include "cartezian2D_modes.idp"
 real height = 1;
 func mesh generateMesh()
 {
@@ -54,7 +54,7 @@ func mesh generateMesh()
 		                                                                  anH(x, y, modeNum, 1, height, 0, k)*conj(0*vEy - N.y*vEz)
                                                                         + anH(x, y, modeNum, 2, height, 0, k)*conj(N.x*vEz - 0*vEx)
 																	    + anH(x, y, modeNum, 3, height, 0, k)*conj(N.y*vEx - N.x*vEy)
-																		)*(1i*k));  // [n v*] rot E = [n v*] (i k H) //TM, 0
+																		)*(1i*k));  // [n v*] rot E = [n v*] (i k H) 
 																	  
 		complex[int] BCr = BoundCondRot(0,Vh);
 		return BCr;				
@@ -97,7 +97,7 @@ func mesh generateMesh()
 	
 	int rightBorderLabel = 2;
 	int  leftBorderLabel = 4;
-	int numberOfModesToAccount = 3;
+	int numberOfModesToAccount = 4;
 	matrix<complex> Br = generateBCMatrix(numberOfModesToAccount, rightBorderLabel,1);
 	matrix<complex> Bl = generateBCMatrix(numberOfModesToAccount, leftBorderLabel, 1);
 	
@@ -107,7 +107,7 @@ func mesh generateMesh()
 	A = A + Bl;                                                 
 	complex[int] u(Br.n);
 	set(A, solver = UMFPACK);
-	complex[int] RHS =  vectorBCh(2 , leftBorderLabel);	
+	complex[int] RHS =  vectorBCh(4 , leftBorderLabel);	
 	
 	u = A^-1*(RHS);
 
@@ -116,7 +116,7 @@ func mesh generateMesh()
 	
  // plot(Ex, fill = true, cmm = "Ex");
     plot(Ey, fill = true, cmm = "Ey");
-//	plot(Ephi, fill = true, cmm = "Ephi");
+	plot(Ephi, fill = true, cmm = "Ephi");
 
 	cout << ".........................................................."<<endl;
 	

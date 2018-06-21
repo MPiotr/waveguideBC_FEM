@@ -1,0 +1,32 @@
+func real H(real k, real kp) 
+{
+	return sqrt(k*k-kp*kp);
+}
+include "cartezian2D_TEmodes.idp"
+include "cartezian2D_TMmodes.idp"
+func complex anE(real xx, real yy, int modeNumber, int componentNumber, real size1, real size2, real k) 
+{
+	real sign = 0; if(modeNumber >= 0) sign = 1.; else sign = -1.;
+	if(abs(modeNumber) % 2 == 0) return anEte(xx, yy, abs(modeNumber)/2*sign, componentNumber, size1, size2, k);
+	else return anEtm(xx, yy, (modeNumber+sign*1)/2, componentNumber, size1, size2, k);
+}
+func complex anH(real xx, real yy, int modeNumber, int componentNumber, real size1, real size2, real k)
+{
+	real sign = 0; if(modeNumber >= 0) sign = 1.; else sign = -1.;
+	if(abs(modeNumber) % 2 == 0) return anHte(xx, yy,  abs(modeNumber)/2*sign, componentNumber, size1, size2, k);
+	else return anHtm(xx, yy, (modeNumber+sign*1)/2, componentNumber, size1, size2, k);
+}
+func real fNorm(int modeNumber, real size1)
+{
+	real sign = 0; if(modeNumber >= 0) sign = 1.; else sign = -1.;
+	if(abs(modeNumber) % 2 == 0) return fNormte( abs(modeNumber)/2*sign, size1);
+	else return fNormtm((modeNumber+sign*1)/2, size1);
+}
+func real Kappa(int modeNumber, real size1, real size2)
+{
+	real sign = 0; if(modeNumber >= 0) sign = 1.; else sign = -1.;
+	return 1;
+	//if(modeNumber % 2 == 0) return Kappate(modeNumber/2, size1);
+	//else return Kappatm((modeNumber+1)/2, size1);
+}
+

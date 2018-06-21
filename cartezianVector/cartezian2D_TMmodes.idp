@@ -1,15 +1,10 @@
-func real Kappa(int modeNumber, real size1, real size2)
+func real Kappatm(int modeNumber, real size1, real size2)
 {
 	return pi*(modeNumber-1)/size1;
 }
-
-func real H(real k, real kp) 
+func complex anHtm(real xx, real yy, int modeNumber, int componentNumber, real size1, real size2, real k) 
 {
-	return sqrt(k*k-kp*kp);
-}
-func complex anH(real xx, real yy, int modeNumber, int componentNumber, real size1, real size2, real k) 
-{
-	real kp = Kappa(abs(modeNumber), size1, 0);
+	real kp = Kappatm(abs(modeNumber), size1, 0);
 	real h = H(k, kp);
 	real sign = 0; if(modeNumber >= 0) sign = 1.; else sign = -1.;
 	if(componentNumber == 3){
@@ -18,9 +13,9 @@ func complex anH(real xx, real yy, int modeNumber, int componentNumber, real siz
 	return 0;
 }
 
-func complex anE(real xx, real yy, int modeNumber, int componentNumber, real size1, real size2, real k)
+func complex anEtm(real xx, real yy, int modeNumber, int componentNumber, real size1, real size2, real k)
 {
-	real kp = Kappa(abs(modeNumber), size1, 0);
+	real kp = Kappatm(abs(modeNumber), size1, 0);
 	real h = H(k, kp);	
 	real sign = 0; if(modeNumber >= 0) sign = 1.; else sign = -1.; 
 	if(componentNumber == 3){
@@ -35,7 +30,7 @@ func complex anE(real xx, real yy, int modeNumber, int componentNumber, real siz
 	return 0*1i;
 }
 
-func real fNorm(int modeNumber, real size1)
+func real fNormtm(int modeNumber, real size1)
 {
 	if(abs(modeNumber) == 1) return 2.*size1;
 	else return  1.*size1;
