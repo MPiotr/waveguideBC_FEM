@@ -2,15 +2,15 @@ load "Element_Mixte"
 load "Element_P3"
 func complex epsilon(real xx, real yy)
 {
-      return 1. + 0*1i;
-	//if(xx > 0.25 && xx < 0.75 && yy > 0.25 && yy < 0.75) return 12;
-	// else return  1.;
+//    return 1. + 0*1i;
+	if(xx > 0.25 && xx < 0.75/* && yy > 0.25 && yy < 0.75*/) return 5;
+	else return  1.;
 }
 include "cartezian2D_modes.idp"
 real height = 1;
 func mesh generateMesh()
 {
-    return square(18,18, [x, y*height]);
+    return square(25,25, [x, y*height]);
 }
       mesh Th = generateMesh();
 	  plot(Th);
@@ -58,7 +58,7 @@ func mesh generateMesh()
 	func complex[int] vectorBCe(int modeNum, int boundaryLabel) 
 	{
 		varf BoundCondField([Ex,Ey,Ez],[vEx,vEy,vEz]) =  int1d(Th,boundaryLabel)((
-																	 conj(-(vEz)*anH(x, y, modeNum, 2, height, 0, k)
+																	 conj(-(vEz)*anH(x, y, modeNum, 2, height, 0, k)        //возможно надо умножить номер моды на N.x. Подумать об этом
 																	 - anE(x, y, modeNum, 3, height, 0, k)*(dx(vEz)/(1i*k) )
 																	 + (vEy) *anH(x, y, modeNum, 3, height, 0, k) 
 																	 - anE(x, y, modeNum, 2, height, 0, k)*((dx(vEy) - dy(vEx))/(1i*k))
@@ -87,23 +87,31 @@ func mesh generateMesh()
 		}
 		return Br1;		
 	}	
-	func complex[int,int] sParams(complex[int]& eVec, int numOfModes, int inputBoundaryLabel, int otherBoundaryLabel, bool needdB)
+	func complex[int] modeAmplitudes(complex[int]& eVec, int numOfModes, int referenceMode, int inputBoundaryLabel, int otherBoundaryLabel,  bool needdB)
 	{
-		complex[int,int] result(numOfModes, numOfModes);
-		if(needdB) for(int i = 0; i < numOfModes; i++) for(int j = 0; j < numOfModes; j++) result(i,j) = log10(0.);
-		for(int refmode = 0; refmode < numOfModes; refmode++)
-		{
-			complex[int] probe = vectorBCe( -refmode-1, inputBoundaryLabel);
-			complex power = eVec'*probe;
-			if(abs(power) < 5e-4) continue;
-			for(int testmode = 0; testmode < numOfModes; testmode++)			 
-			 {
-				 complex[int] probe = vectorBCe( -testmode-1, otherBoundaryLabel);
-				 complex res = eVec'*probe/power;
-				 if(needdB) result(refmode,testmode) =  10*log10(abs(res)); 
-				 else       result(refmode,testmode) =  res;
-			 }
-		}
+		complex[int] result(numOfModes);
+		Vh<complex> [ex,ey,ez]; 
+		ex[] = eVec;
+		if(needdB) for(int i = 0; i < numOfModes; i++) result(i) = log10(0.);
+		complex[int] probe = vectorBCe( -referenceMode, inputBoundaryLabel);
+		complex power = eVec'*probe;
+		cout<<"mode = "<<referenceMode<<"   power = "<<abs(power)<<", "<<power<<endl;
+		for(int testmode = 0; testmode < numOfModes; testmode++)			 
+		 {
+			// complex[int] probe2 = vectorBCe( (testmode+1), otherBoundaryLabel);
+			// complex res = eVec'*probe2/power;
+			complex res = int1d(Th,otherBoundaryLabel)((
+													 conj(-(ez)*anH(x, y, -(N.x)*(testmode+1), 2, height, 0, k)
+													 - anE(x, y, -(N.x)*(testmode+1), 3, height, 0, k)*(dx(ez)/(1i*k) )
+													 + (ey) *anH(x, y, -(N.x)*(testmode+1), 3, height, 0, k) 
+													 - anE(x, y, -(N.x)*(testmode+1), 2, height, 0, k)*((dx(ey) - dy(ex))/(1i*k))
+													 )*(N.x)
+													 )
+													 /(fNorm(-(N.x)*(testmode+1), height)*power));
+			 if(needdB) result(testmode) =  20*log10(abs(res)); 
+			 else       result(testmode) =  res;
+		 }
+	
 		return result;
 	}
 	
@@ -122,11 +130,9 @@ func mesh generateMesh()
 	A = OP;                                                     //but I've found out that the result depends on the order of calling  the constructors (and,generally, is wrong),
 	A = A + Br;                                                 //so now I'm not sure now even if  "matrix A= OP + Bl +Br"  will work correctly and add them step by step
 	A = A + Bl;                                                 
-	complex[int] u(Br.n);
+	complex[int] u(Bl.n);
 	set(A, solver = UMFPACK);
 	complex[int] RHS =  vectorBCh(3 , leftBorderLabel);	
-//	RHS = RHS + vectorBCh(1 , leftBorderLabel);	
-	complex[int] RHSe =  vectorBCe(-3 , leftBorderLabel);
 	
 	u = A^-1*(RHS);
 
@@ -136,8 +142,8 @@ func mesh generateMesh()
     plot(Ey, fill = true, cmm = "Ey");
 	plot(Ez, fill = true, cmm = "Ez");
 	
-	cout<<	sParams(u, numberOfModesToAccount, leftBorderLabel, leftBorderLabel, true)<<endl;
-	cout<<	sParams(u, numberOfModesToAccount, leftBorderLabel,rightBorderLabel, true)<<endl;
+	cout<<	modeAmplitudes(u, numberOfModesToAccount, 3, leftBorderLabel, leftBorderLabel,  true)<<endl;
+	cout<<	modeAmplitudes(u, numberOfModesToAccount, 3, leftBorderLabel, rightBorderLabel, true)<<endl;
 
 /*	fespace Uh (Th, P1);
     Uh adaptFun = abs(Ex);
