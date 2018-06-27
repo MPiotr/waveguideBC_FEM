@@ -4,11 +4,11 @@ func real Kappate(int modeNumber, real size1, real size2)
 }
 func complex anEte(real xx, real yy, int modeNumber, int componentNumber, real size1, real size2, real k) 
 {
-	real kp = Kappate(modeNumber, size1, 0);
+	real kp = Kappate(abs(modeNumber), size1, 0);
 	real h = H(k, kp);
-	real sign = 0; if(modeNumber > 0) sign = 1.; else sign = -1.;
+	real sign = 0; if(modeNumber >= 0) sign = 1.; else sign = -1.;
 	if(componentNumber == 3){
-		return sin(kp*yy)*(1. + 0*1i)*sqrt(k/h)*exp(1i*h*xx*sign);
+		return -sin(kp*yy)*(1. + 0*1i)*sqrt(k/h)*exp(1i*h*xx*sign);
 	}
 	return 0*1i;
 }
@@ -17,7 +17,7 @@ func complex anHte(real xx, real yy, int modeNumber, int componentNumber, real s
 {
 	real kp = Kappate(abs(modeNumber), size1, 0);
 	real h = H(k, kp);
-	real sign = 0; if(modeNumber > 0) sign = 1.; else sign = -1.;
+	real sign = 0; if(modeNumber >= 0) sign = 1.; else sign = -1.;
 	if(componentNumber == 3){
 		return 0;
 	}

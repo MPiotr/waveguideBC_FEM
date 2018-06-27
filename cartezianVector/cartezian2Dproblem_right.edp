@@ -2,15 +2,15 @@
     load "Element_P3"
     func complex epsilon(real xx, real yy)
     {
-     //    return 1. + 0*1i;
-    	if(xx > 0.25 && xx < 0.75/* && yy > 0.25 && yy < 0.75*/) return 5;
-    	else return  1.;
+         return 1. + 0*1i;
+    //	if(xx > 0.25 && xx < 0.75/* && yy > 0.25 && yy < 0.75*/) return 5;
+    //	else return  1.;
     }
     include "cartezian2D_modes.idp"
     real height = 1;
     func mesh generateMesh()
     {
-        return square(20,20, [x, y*height]);
+        return square(15,15, [x, y*height]);
     }
     mesh Th = generateMesh();
 	plot(Th);
