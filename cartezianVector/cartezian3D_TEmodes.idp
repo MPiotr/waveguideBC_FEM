@@ -1,0 +1,41 @@
+func real Kappate(int modeNumber1, real size1)
+{
+	return pi*modeNumber1/size1;
+}
+func complex anEte(real xx, real yy, real zz, int modeNumber1, int modeNumber2, int componentNumber, real size1, real size2, real k) 
+{
+	real kpY = Kappate(abs(modeNumber1), size1);
+	real kpZ = Kappate(abs(modeNumber2), size2);
+	real h = H(k, kpY, kpZ);
+	real sign = 0; if(modeNumber1 >= 0) sign = 1.; else sign = -1.;
+	if(componentNumber == 2){ //Y
+		return  kpZ*cos(kpY*yy)*sin(kpZ*zz)/sqrt((kpY*kpY) + kpZ*kpZ))*sqrt(k/h)*exp(1i*h*sign*xx)
+	}
+	if(componentNumber == 3){ //Z
+		return -kpY*sin(kpY*yy)*cos(kpZ*zz)/sqrt((kpY*kpY) + kpZ*kpZ))*sqrt(k/h)*exp(1i*h*xx*sign);
+	}
+	return 0*1i;
+}
+
+func complex anHte(real xx, real yy, int modeNumberX, int modeNumberY, int componentNumber, real size1, real size2, real k) 
+{
+	real kpY = Kappate(abs(modeNumber1), size1);
+	real kpZ = Kappate(abs(modeNumber2), size2);
+	real h = H(k, kpY, kpZ);
+	real sign = 0; if(modeNumber1 >= 0) sign = 1.; else sign = -1.;
+	if(componentNumber == 3){
+		return kpZ*cos(kpY*yy)*Sin(kpZ*zz))/(sqrt(k/h)*sqrt((kpY*kpY) + kpZ*kpZ)))*sign*exp(1i*h*sign*xx)
+	}
+	if(componentNumber == 2){
+		return -sin(kp*yy)*sqrt(h/k)*sign*exp(1i*h*xx*sign);
+	}
+	if(componentNumber == 1){
+		return  kp*cos(kp*yy)/(1i*k)*sqrt(k/h)*exp(1i*h*xx*sign);
+	}	
+	return 0*1i;
+}
+
+func real fNormte(int modeNumber, real size1)
+{
+	return  1.*size1;
+}

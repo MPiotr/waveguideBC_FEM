@@ -1,0 +1,41 @@
+ifstream modeInput("modes_TE_m=0.txt");
+int modesNumInput;
+modeInput >> modesNumInput;
+real[int] kappas(modesNumInput);
+int[int] modeType(modesNumInput);
+int[int] modeM (modesNumInput);
+real[int] norma(modesNumInput);
+for(int i = 0; i < modesNumInput; i++){
+	modeInput >> kappas[i] >> modeType[i] >> modeM[i] >> norma[i];
+    cout <<"i = "<<i << ", kappa = "<<kappas[i]<<",  modeType ="<<modeType[i]<<", modeM = "<<modeM[i]<<", norma = "<<norma[i]<<endl;
+}
+func real H(real k, real kp) 
+{
+	return sqrt(k*k-kp*kp);
+}
+include "axial2D_TEmodes.txt"
+//#include "cartezian2D_TMmodes.idp"
+func complex anE(real xx, real yy, int modeNumber, int componentNumber, real size1, real size2, real k) 
+{
+	int absM = abs(modeNumber-1);
+	if(modeType[absM] == 0) return anEte(xx, yy, modeNumber, modeM[absM], componentNumber, size1, size2, k);
+//	else return anEtm(xx, yy,  modeNumber, componentNumber, size1, size2, k);
+}
+func complex anH(real xx, real yy, int modeNumber, int componentNumber, real size1, real size2, real k)
+{                       
+	int absM = abs(modeNumber-1);
+	if(modeType[absM] == 0) return anHte(xx, yy,  modeNumber, modeM[absM], componentNumber, size1, size2, k);
+//	else return anHtm(xx, yy, modeNumber, componentNumber, size1, size2, k);
+}
+func real fNorm(int modeNumber, real size1, real k)
+{
+	int absM = abs(modeNumber);
+	if(modeType[absM-1] == 0) return fNormte( modeNumber, size1, k);
+//	else return fNormtm( modeNumber, size1);
+}
+func real Kappa(int modeNumber, real size1, real size2)
+{
+	int absM = abs(modeNumber);
+	if(modeType[absM-1] == 0) return Kappate(modeNumber, size1, 0);
+//	else return Kappatm((modeNumber+1)/2, size1, 0);
+}
