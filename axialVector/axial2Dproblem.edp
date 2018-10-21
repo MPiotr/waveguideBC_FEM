@@ -10,7 +10,7 @@
 	real length = 3;
     func mesh generateMesh()
     {
-        return square(40,40, [x*length, y*height]);
+        return square(30,30, [x*length, y*height]);
     }
     mesh Th = generateMesh();
 	include "axial2D_modes.idp"
@@ -37,7 +37,7 @@
         	         )
         
         		+ on(3,  Hz = 0, Hr = 0, Hphi = 0)
-        	    + on(1,  Hphi = 0, Hz = 0, Hr = 0) //Hr - на оси не имеет значения
+        	    + on(1,  Hphi = 0) //Hr - на оси не имеет значения
          ;
 	    matrix<complex> OP = MKSWL(Vh, Vh, solver=UMFPACK); 
 	    return OP;
@@ -48,7 +48,7 @@
 		varf BoundCondRot([Ex,Ey,Ez],[vEx,vEy,vEz]) =   int1d(Th,boundaryLabel)(/*2.*pi*//*y*/(// x -> z, y ->  r, z -> phi
 		                                                                  anH(x, y, (N.x)*modeNum, 1, height, 0, k)*conj(/*0.*/ - N.y*vEz/*/y*/) // 0 => N.z
                                                                         + anH(x, y, (N.x)*modeNum, 2, height, 0, k)*conj(N.x*vEz/*/y*/ /*- 0.*/)
-																	    + anH(x, y, (N.x)*modeNum, 3, height, 0, k)*conj(N.y*vEx - N.x*vEy)
+																	    + anH(x, y, (N.x)*modeNum, 3, height, 0, k)*conj(N.y*vEx - N.x*vEy)*y
 																		)*(1i*k));  // [n v*] rot E = [n v*] (i k H) 
 																	  
 		complex[int] BCr = BoundCondRot(0,Vh);
@@ -124,7 +124,7 @@
 														 2.*pi*y*
 														 conj(
 														     - (ez/y)*anH(x, y, (N.x)*modeNum, 2, height, 0, k)														  												  
-														    + (anE(x, y,  (N.x)*modeNum, 3, height, 0, k))*(-(dx(ez)/y + 1i*m*ex/y) / (1i*k) ) //Ez = anE(..,3,..)*y
+														     + (anE(x, y,  (N.x)*modeNum, 3, height, 0, k))*(-(dx(ez)/y + 1i*m*ex/y) / (1i*k) ) //Ez = anE(..,3,..)*y
 														     + (ey) *anH(x, y,  (N.x)*modeNum, 3, height, 0, k)
 														     - anE(x, y,  (N.x)*modeNum, 2, height, 0, k)*((dx(ey) - dy(ex))/(1i*k))
 														     )*(N.x)
@@ -140,7 +140,7 @@
 	
 		
 	int m = 0;                           //not used in this implementation, keep it for consistency 
-	real sigma = 9.*pi*pi-70;//70.;
+	real sigma = 9.*pi*pi-75;//70.;
 	real k = sqrt(sigma);
 	cout<<"h1 = "<<H(k, Kappa(1,height,1))<<",  kappa1 = "<<Kappa(1,height,1)<<",  k = "<<k<<",  beta_ph = "<<k/H(k, Kappa(1,height,1))<<endl; 
 	cout<<"h2 = "<<H(k, Kappa(2,height,1))<<",  kappa2 = "<<Kappa(2,height,1)<<",  k = "<<k<<",  beta_ph = "<<k/H(k, Kappa(1,height,1))<<endl; 
@@ -207,7 +207,7 @@
 	int rightBorderLabel = 2;
 	int  leftBorderLabel = 4;
 	int numberOfModesToAccount = 3;
-	int targetMode = 1;
+	int targetMode = 3;
 	matrix<complex> Br = generateBCMatrix(numberOfModesToAccount, rightBorderLabel,1, k);
 	matrix<complex> Bl = generateBCMatrix(numberOfModesToAccount, leftBorderLabel, 1, k);
 	matrix<complex> OP = MakswellEqs(sigma, m, 0) ;
@@ -226,7 +226,7 @@
 	Vh<complex> [Ex,Ey,Ez]; 
     Ex[] = u;
 
- // plot(Ex, fill = true, cmm = "Ex");
+    plot(Ex, fill = true, cmm = "Ex");
     plot(Ey, fill = true, cmm = "Ey");
 	fespace Uh (Th, P1); Uh<complex> Eztrue = Ez/(y+1e-10);
 	plot(Eztrue, fill = true, cmm = "Ez");
