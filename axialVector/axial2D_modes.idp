@@ -1,4 +1,4 @@
-ifstream modeInput("modes_TM_m=0.txt");
+ifstream modeInput("modes_m=0.txt");
 int modesNumInput;
 modeInput >> modesNumInput;
 real[int] kappas(modesNumInput);
@@ -18,28 +18,28 @@ include "axial2D_TMmodes.idp"
 func complex anE(real xx, real yy, int modeNumber, int componentNumber, real size1, real size2, real k) 
 {
 	int absM = abs(modeNumber-1);
-	if(modeType[absM] == 0) cout <<"ERROR............................."<<endl; // return anEte(xx, yy, modeNumber, modeM[absM], componentNumber, size1, size2, k);
+	if(modeType[absM] == 0)  return anEte(xx, yy, modeNumber, modeM[absM], componentNumber, size1, size2, k);
 	else anEtm(xx, yy, modeNumber, modeM[absM], componentNumber, size1, size2, k);
 	return 0;
 }
 func complex anH(real xx, real yy, int modeNumber, int componentNumber, real size1, real size2, real k)
 {                       
 	int absM = abs(modeNumber-1);
-	if(modeType[absM] == 0) cout <<"ERROR............................."<<endl; //return anHte(xx, yy,  modeNumber, modeM[absM], componentNumber, size1, size2, k);
+	if(modeType[absM] == 0) return anHte(xx, yy,  modeNumber, modeM[absM], componentNumber, size1, size2, k);
 	else return anHtm(xx, yy,  modeNumber, modeM[absM], componentNumber, size1, size2, k);
 	return 0;
 }
 func real fNorm(int modeNumber, real size1, real k)
 {
 	int absM = abs(modeNumber);
-	if(modeType[absM-1] == 0) cout <<"ERROR............................."<<endl; //return fNormte( modeNumber, size1, k);
+	if(modeType[absM-1] == 0) return fNormte( modeNumber, size1, k);
 	else return fNormtm( modeNumber, size1, k);
 	return 0;
 }
 func real Kappa(int modeNumber, real size1, real size2)
 {
 	int absM = abs(modeNumber);
-	if(modeType[absM-1] == 0) cout <<"ERROR............................."<<endl; //return Kappate(modeNumber, size1, 0);
+	if(modeType[absM-1] == 0) return Kappate(modeNumber, size1, 0);
 	else return Kappatm(modeNumber, size1, 0);
 	return 0;
 }
