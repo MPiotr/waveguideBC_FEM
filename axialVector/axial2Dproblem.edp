@@ -67,7 +67,7 @@
 																      + (vEy) *anH(x, y,  (N.x)*modeNum, 3, height, 0, k) * y  
 																      - anE(x, y,  (N.x)*modeNum, 2, height, 0, k)*((dx(vEy) - dy(vEx))/(1i*k) * y)
 																	 )*(N.x)
-																	 )
+																	 ) // для ТМ знаки --++, для TE -++- ПОЧЕМУУУУ?
 																	 /fNorm(modeNum, height, k)); 
 		complex[int] BCrf = BoundCondField(0,Vh);
 		return BCrf;
@@ -114,7 +114,9 @@
 												//		 / fNorm(referenceMode, height, k)
 														);*/
 															
-		cout<<"modeAmplitudes: mode = "<<referenceMode<<"   power = "<<abs(power)<<"(abs),   "<<power<<endl;
+		cout<<"    modeAmplitudes: mode = "<<referenceMode<<" from border "<<inputBoundaryLabel
+		      <<", reference border = " <<otherBoundaryLabel<<endl
+			<<"    power = "<<abs(power)<<"(abs),   "<<power<<endl;
 		for(int testmode = 0; testmode < numOfModes; testmode++)	
        // for(int testmode = 1; testmode <= 1; testmode++)			
 		 {
@@ -128,14 +130,15 @@
 			complex res = int1d(Th,otherBoundaryLabel)((// x -> z, y ->  r, z -> phi;    n [Es Hv]
 														 2.*pi*y*
 														 conj(
-														     - (ez/y)*anH(x, y, (N.x)*modeNum, 2, height, 0, k)														  												  
-														     + (anE(x, y,  (N.x)*modeNum, 3, height, 0, k))*(-(dx(ez)/y + 1i*m*ex/y) / (1i*k) ) //Ez = anE(..,3,..)*y
-														     + (ey) *anH(x, y,  (N.x)*modeNum, 3, height, 0, k)
-														     - anE(x, y,  (N.x)*modeNum, 2, height, 0, k)*((dx(ey) - dy(ex))/(1i*k))
+														     - (ez/y)*anH(x, y, modeNum, 2, height, 0, k)														  												  
+														     + (anE(x, y,  modeNum, 3, height, 0, k))*(-(dx(ez)/y + 1i*m*ex/y) / (1i*k) ) //Ez = anE(..,3,..)*y
+														     + (ey) *anH(x, y,  modeNum, 3, height, 0, k)
+														     - anE(x, y,  modeNum, 2, height, 0, k)*((dx(ey) - dy(ex))/(1i*k))
 														     )*(N.x)
 														 )
 														 /(fNorm(modeNum, height, k)*tmpPower));	
-            cout << "inner loop: res=" << res <<",  abs(res) = "<<abs(res)<<",   tmpPower = "<<tmpPower<<endl; 														 
+            cout << "        inner loop: mode = "<< modeNum <<", res=" << res <<",  abs(res) = "
+			     <<abs(res)<<","<<endl<<"        tmpPower = "<<tmpPower<<endl; 														 
 			 if(needdB) result(testmode) =  20*log10(abs(res)); 
 			 else       result(testmode) =  res;
 		 }
@@ -145,12 +148,12 @@
 	
 		
 	int m = 0;                           //not used in this implementation, keep it for consistency 
-	real sigma = 9.*pi*pi-75;//70.;
+	real sigma = 9.*pi*pi-81.5;//70.;
 	real k = sqrt(sigma);
 	cout<<"h1 = "<<H(k, Kappa(1,height,1))<<",  kappa1 = "<<Kappa(1,height,1)<<",  k = "<<k<<",  beta_ph = "<<k/H(k, Kappa(1,height,1))<<endl; 
-	cout<<"h2 = "<<H(k, Kappa(2,height,1))<<",  kappa2 = "<<Kappa(2,height,1)<<",  k = "<<k<<",  beta_ph = "<<k/H(k, Kappa(1,height,1))<<endl; 
-	cout<<"h3 = "<<H(k, Kappa(3,height,1))<<",  kappa3 = "<<Kappa(3,height,1)<<",  k = "<<k<<",  beta_ph = "<<k/H(k, Kappa(1,height,1))<<endl; 
-	cout<<"h3 = "<<H(k, Kappa(4,height,1))<<",  kappa3 = "<<Kappa(4,height,1)<<",  k = "<<k<<",  beta_ph = "<<k/H(k, Kappa(1,height,1))<<endl; 	
+	cout<<"h2 = "<<H(k, Kappa(2,height,1))<<",  kappa2 = "<<Kappa(2,height,1)<<",  k = "<<k<<",  beta_ph = "<<k/H(k, Kappa(2,height,1))<<endl; 
+	cout<<"h3 = "<<H(k, Kappa(3,height,1))<<",  kappa3 = "<<Kappa(3,height,1)<<",  k = "<<k<<",  beta_ph = "<<k/H(k, Kappa(3,height,1))<<endl; 
+	cout<<"h4 = "<<H(k, Kappa(4,height,1))<<",  kappa3 = "<<Kappa(4,height,1)<<",  k = "<<k<<",  beta_ph = "<<k/H(k, Kappa(4,height,1))<<endl; 	
 	
 //================= debug ========================
 /*	sigma = 6.0;
@@ -211,8 +214,8 @@
 // =================================================
 	int rightBorderLabel = 2;
 	int  leftBorderLabel = 4;
-	int numberOfModesToAccount = 3;
-	int targetMode = 3;
+	int numberOfModesToAccount = 2;
+	int targetMode = 2;
 	matrix<complex> Br = generateBCMatrix(numberOfModesToAccount, rightBorderLabel,1, k);
 	matrix<complex> Bl = generateBCMatrix(numberOfModesToAccount, leftBorderLabel, 1, k);
 	matrix<complex> OP = MakswellEqs(sigma, m, 0) ;
@@ -230,14 +233,18 @@
 
 	Vh<complex> [Ex,Ey,Ez]; 
     Ex[] = u;
+	
+	fespace Uh (Th, P1);
+	Uh<complex> Eztrue = Ez/(y+1e-10);
+	Uh<complex> Exnorm = Ex;
 
-    plot(Ex, fill = true, cmm = "Ex");
+    plot(Ex, fill = true, cmm = "EX NORM");
     plot(Ey, fill = true, cmm = "Ey");
-	fespace Uh (Th, P1); Uh<complex> Eztrue = Ez/(y+1e-10);
+	 
 	plot(Eztrue, fill = true, cmm = "Ez");
 	
 	cout<<	modeAmplitudes(u, numberOfModesToAccount, -targetMode,  leftBorderLabel,  rightBorderLabel, k, false)<<endl;
-	cout<<	modeAmplitudes(u, numberOfModesToAccount,  targetMode,  leftBorderLabel,  leftBorderLabel, k, false)<<endl; 
+	cout<<	modeAmplitudes(u, numberOfModesToAccount, -targetMode,  leftBorderLabel,  leftBorderLabel, k, false)<<endl; 
 
     complex theNorm =  int1d(Th,leftBorderLabel)((// x(1) -> z, y(2) ->  r, z(3) -> phi;    n [Es Hv]
 																	 2.*pi*y*

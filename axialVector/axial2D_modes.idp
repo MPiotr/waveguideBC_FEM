@@ -19,12 +19,12 @@ func complex anE(real xx, real yy, int modeNumber, int componentNumber, real siz
 {
 	int absM = abs(modeNumber-1);
 	if(modeType[absM] == 0)  return anEte(xx, yy, modeNumber, modeM[absM], componentNumber, size1, size2, k);
-	else anEtm(xx, yy, modeNumber, modeM[absM], componentNumber, size1, size2, k);
+	else return anEtm(xx, yy, modeNumber, modeM[absM], componentNumber, size1, size2, k);
 	return 0;
 }
 func complex anH(real xx, real yy, int modeNumber, int componentNumber, real size1, real size2, real k)
 {                       
-	int absM = abs(modeNumber-1);
+	int absM = abs(modeNumber)-1;
 	if(modeType[absM] == 0) return anHte(xx, yy,  modeNumber, modeM[absM], componentNumber, size1, size2, k);
 	else return anHtm(xx, yy,  modeNumber, modeM[absM], componentNumber, size1, size2, k);
 	return 0;

@@ -47,9 +47,36 @@ func complex anEtm(real xx, real yy, int modeNumber, int M,  int componentNumber
 	return 0*1i;
 }
 
+
+func complex anRotEhatTM(real xx, real yy, int modeNumber, int M, int componentNumber, real size1, real size2, real k) 
+{
+	real kp = Kappatm(modeNumber, size1, 0);
+	real h = H(k, kp);
+	real sign = 0; if(modeNumber >= 0) sign = 1.; else sign = -1.;
+	real rho = kp*yy;
+	real mu = kp*size1;
+	int m = M*sign;
+	if(componentNumber == 2){ //r
+	    //   if(yy < 1e-8) 
+		//    	if(M != 1) return 0;		    
+		//           else return k*m*exp(1i*h*xx*sign)*0.5*mu/size1*exp(1i*h*xx*sign);
+	    return 1i*m*sign*(-k*k + h*h*(1 - 1/y))*jn(M, rho)*exp(1i*h*xx*sign)/(yy);
+	}
+	if(componentNumber == 3){//phi	
+	    real jnDash = 0.5*(jn(M-1, rho) - jn(M+1, rho));		
+		return k*k*mu*(jnDash)*exp(1i*h*xx*sign)/size1;
+	}
+	if(componentNumber == 1) {//z
+	    real jnDash = 0.5*(jn(M-1, rho) - jn(M+1, rho));
+		if(m = 0) return 0;
+	    return -exp(1i*h*xx*sign)*h*m*(size1*jn(M, rho) + y*(y-1)*mu*jnDash)/(y^3*size1);
+	}
+	return 0*1i;
+}
+
 func real fNormtm(int modeNumber, real size1, real k)
 {
 	real kp = Kappatm(modeNumber, size1, 0);
 	real h = H(k, kp);
-	return  2.*pi*h*k*norma[abs(modeNumber)-1]; //почему два а не четыре???
+	return  -4*pi*h*k*norma[abs(modeNumber)-1]; //почему два а не четыре???
 }
