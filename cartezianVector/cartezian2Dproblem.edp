@@ -14,7 +14,7 @@
     real length = 2;
     func mesh generateMesh()
     {
-        return square(35,10, [x*length, y*height]);
+        return square(75,20, [x*length, y*height]);
     }
     int rightBorderLabel = 2;
     int  leftBorderLabel = 4;
@@ -143,7 +143,7 @@
     A = A + Bl;                                                 
     complex[int] u(Bl.n);
     set(A, solver = UMFPACK);
-    complex[int] RHS =  vectorBCh(2 , leftBorderLabel, k);    
+    complex[int] RHS =  vectorBCh(3 , leftBorderLabel, k);    
     
     u = A^-1*(RHS);
 
