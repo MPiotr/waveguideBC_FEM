@@ -25,7 +25,7 @@
                 (
                      (dy(Ephi) - 1i*m*Er )*conj(dy(vEphi)- 1i*m*vEr )/y      //curl_z // vEphi => (Ephi*y)
                  +   (dx(Er) - dy(Ez))*conj(dx(vEr) - dy(vEz))*y             //curl_phi
-                 +   (1i*m*Ez  - odx(Ephi))*conj(1i*m*vEz  - odx(vEphi))/y   //curl_r        
+                 +   (1i*m*Ez  - dx(Ephi))*conj(1i*m*vEz  - dx(vEphi))/y   //curl_r        
                 )    
             -sigma*y*epsilon(x,y)*(conj(vEr)*Er+conj(vEphi)*Ephi/(y*y)+conj(vEz)*Ez)
                      )        
@@ -197,10 +197,10 @@
         */
 // =================================================
     int numberOfModesToAccount = 2;
-    int targetMode = 2;
+    int targetMode = 1;
     matrix<complex> Br = generateBCMatrix(numberOfModesToAccount, rightBorderLabel,1, k);
     matrix<complex> Bl = generateBCMatrix(numberOfModesToAccount, leftBorderLabel, 1, k);
-    matrix<complex> OP = MakswellEqs(sigma, m, 0) ;
+    matrix<complex> OP = MakswellEqs(sigma, 0, 0) ;
     
     matrix<complex> A;        //A = OP + generateBCMatrix(...) + generateBCMatrix(...) produces
     A = OP;                   //order dependent incorrect result tested FreeFem++ v 3.56
